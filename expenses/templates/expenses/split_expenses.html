@@ -1,0 +1,38 @@
+{% extends 'expenses/base.html' %}
+
+{% block title %}Split Expenses{% endblock %}
+
+{% block content %}
+<h1>Split Expenses</h1>
+<h2>{{ group }}</h2>
+{% comment %} <button class="btn btn-primary"> {% endcomment %}
+
+
+<!-- split_expenses.html -->
+<!-- split_expenses.html -->
+
+<h1>Split Expenses</h1>
+<h2>{{ group }}</h2>
+
+<table>
+  <tr>
+    <th>Member</th>
+    <th>Owes</th>
+  </tr>
+  {% for member, balance in balances.items %}
+    <tr>
+      <td>{{ member }}</td>
+      <td>
+        {% if balance > 0 %}
+          owes {{ balance }} to others
+        {% elif balance < 0 %}
+          is owed {{ balance }} by others
+        {% else %}
+          is even
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+{% endfor %}
+{%endblock%}

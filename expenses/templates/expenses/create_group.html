@@ -1,0 +1,25 @@
+{% extends 'expenses/base.html' %}
+
+{% block title %}Create Group{% endblock %}
+
+{% block content %}
+<h1>Create Group</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
+
+<h2>All Groups</h2>
+    <ul>
+        {% for group in groups %}
+            <li><a href="{% url 'group_detail' group.id %}">{{ group.grp_name }}</a></li>
+        {% endfor %}
+    </ul>
+    <h2>All Members</h2>
+    <ul>
+        {% for member in members %}
+            <li>{{ member.name }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

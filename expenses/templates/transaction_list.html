@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Transactions for {{ group.name }}</h1>
+  <ul>
+    {% for transaction in transactions %}
+      <li>{{ transaction.date }} - {{ transaction.amount }} - {{ transaction.description }}</li>
+    {% endfor %}
+  </ul>
+  <a href="{% url 'add_transaction' group_id=group.id %}">Add new transaction</a>
+{% endblock %}
