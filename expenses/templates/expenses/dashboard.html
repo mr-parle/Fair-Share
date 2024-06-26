@@ -1,30 +1,23 @@
 {% extends 'expenses/base.html' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}
+  Dashboard
+{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
-{% comment %} {% for group in groups %} {% endcomment %}
-    {% comment %} {% if group.group_id %} {% endcomment %}
-        <a href="{% url 'create_group' %}" class="btn btn-primary">Get Started</a>
-    {% comment %} {% else %} {% endcomment %}
-        <!-- Handle the case where group_id is empty or None -->
-        
-        <h2>All Groups</h2>
-        <ul>
-            {% for group in groups %}
-                <li><a href="{% url 'group_detail' group.id %}">{{ group.grp_name }}</a></li>
-            {% endfor %}
-        </ul>
+  <h1>Dashboard</h1>
 
-        <h2>All Members</h2>
-        <ul>
-            {% for member in members %}
-                <li>{{ member.name }}</li>
-            {% endfor %}
-        </ul>
-    {% comment %} {% endif %} {% endcomment %}
-{% comment %} {% endfor %} {% endcomment %}
+  <a href="{% url 'create_group' %}" class="btn btn-primary">Get Started</a>
+<br><br>
+  <h2>Select from already made Groups</h2>
+  
+    {% for group in groups %}
+      <p>
+        <a href="{% url 'group_detail' group.id %}">{{ group.grp_name }}</a>
+      </p>
+    {% endfor %}
 
 
+  {% comment %} {% endif %} {% endcomment %}
+  {% comment %} {% endfor %} {% endcomment %}
 {% endblock %}

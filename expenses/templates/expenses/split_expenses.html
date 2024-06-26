@@ -14,7 +14,23 @@
 <h1>Split Expenses</h1>
 <h2>{{ group }}</h2>
 
-<table>
+
+{% if settlements %}
+    <h2>Settlements</h2>
+    <ul>
+    {% for settlement in settlements %}
+        <li>{{ settlement }}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+
+
+
+
+{%endblock%}
+
+{% comment %} <table>
   <tr>
     <th>Member</th>
     <th>Owes</th>
@@ -33,6 +49,7 @@
       </td>
     </tr>
   {% endfor %}
-</table>
-{% endfor %}
-{%endblock%}
+</table> {% endcomment %}
+
+
+

@@ -1,28 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from.forms import GroupForm, MemberForm, TransactionForm
-from.models import Group, Member, Transaction
+from.models import Group, Member, Transaction, GroupMember
 from django.urls import reverse
 
-def create_group(request):
-    if request.method == 'POST':
-        group_form = GroupForm(request.POST)
-        if group_form.is_valid():
-            group = group_form.save()
-            members = request.POST.get('members').split(',')
-            for member in members:
-                member = member.strip()
-                if member:
-                    member_obj, created = Member.objects.get_or_create(name=member)
-                    group.members.add(member_obj)
-            return redirect('group_list')  # redirect to a list of groups
-    else:
-        group_form = GroupForm()
-    return render(request, 'create_group.html', {'group_form': group_form})
-
-def create_group(request, group_id):
+def create_group(request):   
     
-    group = get_object_or_404(Group, id=group_id)
-    members = group.members.all()
     if request.method == 'POST':
         form = GroupForm(request.POST)
         if form.is_valid():
@@ -31,20 +13,40 @@ def create_group(request, group_id):
         
     else:
         form = GroupForm()
-    context = { 'form': form, 'members': members , 'groups': groups}
+    context = { 'form': form}
     return render(request, 'expenses/create_group.html', context)
 
 def group_detail(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     members = group.members.all()
-    print("Members:", members) 
+    # print("Members:", members) 
     transactions = Transaction.objects.filter(group=group)
     
+    settlements = []
+
+    if request.method == 'POST' and 'split_expenses' in request.POST:
+        settlements = split_expenses(group_id)
+
     context = {
         'group': group,
         'members': members,
         'transactions': transactions,
+        'settlements': settlements
     }
+    
+    # transactions = Transaction.objects.filter(group=group)
+    # settlements = []
+
+    # if request.method == 'POST' and 'split_expenses' in request.POST:
+    #     settlements = split_expenses(group_id)
+
+    # context = {
+    #     'group': group,
+    #     'embers': members,
+    #     'transactions': transactions,
+    #     'ettlements': settlements
+    # }
+    
     return render(request, 'expenses/group_detail.html', context)
 
 def dashboard(request):
@@ -57,69 +59,115 @@ def dashboard(request):
     groups = Group.objects.all()
     return render(request, 'expenses/dashboard.html', {'groups': groups})
 
-
-
 def add_member(request, group_id):
-    
     group = get_object_or_404(Group, id=group_id)
     if request.method == 'POST':
         form = MemberForm(request.POST)
         if form.is_valid():
-            form.save()
-            # return redirect(reverse('add_member', args=[group_id]))
-            return redirect(reverse('add_member', args=[group_id]))
+            member = form.save()
+            GroupMember.objects.create(group=group, member=member)
+            return redirect(reverse('group_detail', args=[group_id]))
     else:
         form = MemberForm()
-    context={'form': form, 'group': group}
-    return render(request, 'expenses/add_member.html', context )
-
+    context = {'form': form, 'group': group}
+    return render(request, 'expenses/add_member.html', context)
 
 def add_transaction(request, group_id):
     
-    
     group = get_object_or_404(Group, id=group_id)
-    print(group.members.all())  # Check if this prints any members
+    # print(group.members.all())  # Check if this prints any members
     if request.method == 'POST':
         form = TransactionForm(group, request.POST)  # Pass the group object here
         if form.is_valid():
-            form.save()
-            return redirect('transaction_list', group_id=group_id)  # redirect to transaction list
+            transaction = form.save(commit=False)
+            transaction.group = group
+            transaction.save()
+            members = request.POST.getlist('members')
+            for member_id in members:
+                member = Member.objects.get(id = member_id)
+                transaction.members.add(member)
+            return redirect('group_detail', group_id=group_id)  # redirect to transaction list
     else:
         form = TransactionForm(group)  # Pass the group object here
     return render(request, 'expenses/add_transaction.html', {'form': form, 'group': group})
-    
-
-    
+       
 def transaction_list(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     transactions = Transaction.objects.filter(group=group)
-    return render(request, 'expenses/transaction_list.html', {'transactions': transactions})
+    return render(request, 'expenses/group_detail.html', {'transactions': transactions})
 
 def some_view(request, group_id):
     group = get_object_or_404(Group, id=group_id)
-
-
-def split_expenses(request, pk):
-    group = get_object_or_404(Group, id=pk)
+ 
+def split_expenses(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
     context = {}
     transactions = Transaction.objects.filter(group=group)
     members = group.members.all()
-    total_expense = sum(transaction.amount for transaction in transactions)
-    num_members = members.count()
-
-    if num_members == 0:
-        return redirect('group_list')  # Skip if there are no members in the group
-
-    split_amount = total_expense / num_members
-
-    balances = {}
+    
+    balances = {}    
+    # Initialize balances for each member
     for member in members:
-        paid_amount = sum(transaction.amount for transaction in member.payments.all())
-        member_share = sum(transaction.amount for transaction in transactions.filter(payer=member))
-        balances[member.name] = paid_amount - member_share + split_amount
+        balances[member.name] = 0
+        
+    # Calculate the total amount paid by each member
+    for transaction in transactions:
+       balances[transaction.payer.name] += transaction.amount
+       
+     # Calculate the total amount owed by each member
+    for transaction in transactions:
+       member_count = transaction.members.count()
+       if member_count > 0:
+           split_amount = transaction.amount / member_count
+           for member in transaction.members.all():
+               if member.name == transaction.payer.name:
+                   balances[member.name] += split_amount
+               else:
+                   balances[member.name] -= split_amount
+                   
+       else:
+           # Handle the case where there are no members
+           print(f" Warning: Transaction {transaction.id} has no members")
+           
+    creditors = {member: balance for member, balance in balances.items() if balance > 0}
+    debtors = {member: -balance for member, balance in balances.items() if balance < 0}
+                
+    debtors = sorted(debtors.items(), key=lambda x: x[1], reverse=True)
+    creditors = sorted(creditors.items(), key=lambda x: x[1], reverse=True)
+    
+    settlements = []
+    while creditors and debtors:
+       creditor, credit = creditors[0]
+       debtor, debt = debtors[0]
+       if debt >= credit:
+           settlements.append(f"{debtor} → {creditor} {credit:.2f}")
+           debtors[0] = (debtor, debt - credit)
+           if debt - credit == 0:
+               debtors.pop(0)
+           creditors.pop(0)
+       else:
+           settlements.append(f"{debtor} → {creditor} {debt:.2f}")
+           creditors[0] = (creditor, credit - debt)
+           if credit - debt == 0:
+               creditors.pop(0)
+           debtors.pop(0)
+    # for debtor, debt in debtors:
+    #    settlements.append(f"{debtor} owes {debt:.2f}")
+    # for creditor, credit in creditors:
+    #    settlements.append(f"{creditor} is owed {credit:.2f}")
+              
+    context['settlements'] = settlements
+    context['group'] = group
+    return context
+#    return render(request, 'group_detail.html', context)    
+     
+                
+            
+            
+            
+    # context[group.grp_name] = balances
+ 
 
-    context[group.grp_name] = balances
-    return render(request, 'expenses/split_expenses.html', {'context': context})
 
 
 
@@ -132,9 +180,76 @@ def split_expenses(request, pk):
 
 
 
+# def split_expenses(request, group_id):
+#     group = get_object_or_404(Group, id=group_id)
+#     context = {}
+#     transactions = Transaction.objects.filter(group=group)
+#     # print(f"#1 transacti0onsss areee   {transactions}")
+#     members = group.members.all()
+#     # print(f"#2 members areee   {members}")
+    
+#     balances = {}
+    
+#      # Initialize balances for each member
+#     # print("loops 1")
+#     for member in members:
+#         balances[member.name] = 0
+#         # print(f" $$$ {balances[member.name]}")
+         
+         
+#     # Calculate the total amount paid by each member
+#     # print("loops 2")
+#     for transaction in transactions:
+#         balances[transaction.payer.name] += transaction.amount
+#         # print(f" #3 transaction.payer.name   {transaction.payer.name}") 
+#         # print(f"#4 transaction.amount   {transaction.amount}") 
+#     # print(f"(#5 balance  {balances}")
 
+#     # Calculate the total amount owed by each member
+#     print("loops 3")
+#     # for transaction in transactions:
+#         # print(f"&&&& each value of the loop 3   {transaction}")
+#         member_count = transaction.members.count()
+#         # print(f"#6 member_count  {member_count}") 
+#         # print(f" #7 transaction.members all  {transaction.members.all()}") 
+#         if member_count > 0:
+#             # print(f"#$$$$4 transaction.amount   {transaction.amount} by {transaction.payer.name}") 
+            
+#             split_amount = transaction.amount / member_count
+#             for member in transaction.members.all():
+#                 if member.name == {transaction.payer.name}:
+#                     balances[member.name] += split_amount
+#                 else:
+#                     balances[member.name] -= split_amount
+                    
+#                     # print(f"(#8 balance=> member name  {member.name} ---amt:  {balances[member.name]}")
+            
+#         else:
+#             # Handle the case where there are no members
+#             print(f" Warning: Transaction {transaction.id} has no members")
+        
+            
 
+    
+    # creditors = {member: balance for member, balance in balances.items() if balance > 0}
+    # debtors = {member: -balance for member, balance in balances.items() if balance < 0}
 
+    # creditors = sorted(creditors.items(), key=lambda x: x[1], reverse=True)
+    # debtors = sorted(debtors.items(), key=lambda x: x[1], reverse=True)
+    
+    # while creditors and debtors:
+    #     creditor, credit = creditors[0]
+    #     debtor, debt = debtors[0]
+    #     if debt >= credit:
+    #         print(f"{debtor} → {creditor} {credit}")
+    #         debtors[0] = (debtor, debt - credit)
+    #         creditors.pop(0)
+    #     else:
+    #         print(f"{debtor} → {creditor} {debt}")
+    #         creditors[0] = (creditor, credit - debt)
+    #         debtors.pop(0)
+    
+    
 
 
 
@@ -151,6 +266,29 @@ def split_expenses(request, pk):
 # def split_expenses(request):
 #     groups = Group.objects.all()
 #     context = {}
+    # Calculate the final balances
+    # for member in members:
+    #     if balances[member.name] > 0:
+    #         balances[member.name] = f"{member.name} is owed {balances[member.name]}"
+    #         print(f"finalllll {balances[member.name]}")
+    #     elif balances[member.name] < 0:
+    #         balances[member.name] =  f"{member.name} owes {-balances[member.name]}"
+    #         print(f"finalllll   {balances[member.name]}")
+    #     else:
+    #         balances[member.name] = f"{member.name} is settled"
+    #         print(f"{balances[member.name]}")
+    
+    # for member, balance in balances.items():
+    #     if balance > 0:
+    #         for other_member, other_balance in balances.items():
+    #             if other_balance < 0 and other_member != member:
+    #                 print(f"{other_member} → {member} {balance}")
+    #                 break
+    #     elif balance < 0:
+    #         for other_member, other_balance in balances.items():
+    #             if other_balance > 0 and other_member != member:
+    #                 print(f"{member} → {other_member} {-balance}")
+    #                 break
 #     for group in groups:
 #         transactions = Transaction.objects.filter(group=group)
 #         members = Member.objects.filter(group=group)

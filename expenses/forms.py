@@ -30,6 +30,7 @@ class TransactionForm(forms.ModelForm):
         super(TransactionForm, self).__init__(*args, **kwargs)
         self.fields['payer'].queryset = group.members.all()
         self.fields['group'].widget = forms.HiddenInput()
+        self.fields['group'].initial = group
 
     class Meta:
         model = Transaction
