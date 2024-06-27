@@ -24,8 +24,11 @@ def group_detail(request, group_id):
     
     settlements = []
 
+
+        
     if request.method == 'POST' and 'split_expenses' in request.POST:
-        settlements = split_expenses(group_id)
+        settlements_context = split_expenses(request, group_id)
+        settlements = settlements_context.get('settlements', [])
 
     context = {
         'group': group,
@@ -34,18 +37,6 @@ def group_detail(request, group_id):
         'settlements': settlements
     }
     
-    # transactions = Transaction.objects.filter(group=group)
-    # settlements = []
-
-    # if request.method == 'POST' and 'split_expenses' in request.POST:
-    #     settlements = split_expenses(group_id)
-
-    # context = {
-    #     'group': group,
-    #     'embers': members,
-    #     'transactions': transactions,
-    #     'ettlements': settlements
-    # }
     
     return render(request, 'expenses/group_detail.html', context)
 
@@ -99,67 +90,183 @@ def transaction_list(request, group_id):
 def some_view(request, group_id):
     group = get_object_or_404(Group, id=group_id)
  
+ 
+
+# from collections import defaultdict
+
+from collections import defaultdict
+from decimal import Decimal
+
 def split_expenses(request, group_id):
     group = get_object_or_404(Group, id=group_id)
-    context = {}
     transactions = Transaction.objects.filter(group=group)
     members = group.members.all()
-    
-    balances = {}    
-    # Initialize balances for each member
-    for member in members:
-        balances[member.name] = 0
+
+    # Initialize dictionaries to track expenses and payments
+    member_expenses = defaultdict(Decimal)
+    member_paid = defaultdict(Decimal)
+
+    # Calculate total expenses per member and total amount paid per member
+    for transaction in transactions:
+        split_between = transaction.group.members.all()
+        split_amount = Decimal(transaction.amount) / split_between.count()
+
+        for member in split_between:
+            member_expenses[member.id] += Decimal(split_amount)
         
-    # Calculate the total amount paid by each member
-    for transaction in transactions:
-       balances[transaction.payer.name] += transaction.amount
-       
-     # Calculate the total amount owed by each member
-    for transaction in transactions:
-       member_count = transaction.members.count()
-       if member_count > 0:
-           split_amount = transaction.amount / member_count
-           for member in transaction.members.all():
-               if member.name == transaction.payer.name:
-                   balances[member.name] += split_amount
-               else:
-                   balances[member.name] -= split_amount
-                   
-       else:
-           # Handle the case where there are no members
-           print(f" Warning: Transaction {transaction.id} has no members")
-           
-    creditors = {member: balance for member, balance in balances.items() if balance > 0}
-    debtors = {member: -balance for member, balance in balances.items() if balance < 0}
-                
-    debtors = sorted(debtors.items(), key=lambda x: x[1], reverse=True)
-    creditors = sorted(creditors.items(), key=lambda x: x[1], reverse=True)
-    
+        member_paid[transaction.payer.id] += Decimal(transaction.amount)
+
+    # Calculate net balances (positive for creditors, negative for debtors)
+    net_balances = {member.id: member_paid[member.id] - member_expenses[member.id] for member in members}
+
+    # Lists for creditors and debtors
+    creditors = sorted([(member.id, net_balances[member.id]) for member in members if net_balances[member.id] > 0], key=lambda x: x[1], reverse=True)
+    debtors = sorted([(member.id, net_balances[member.id]) for member in members if net_balances[member.id] < 0], key=lambda x: x[1])
+
     settlements = []
+
+    # Settling debts
     while creditors and debtors:
-       creditor, credit = creditors[0]
-       debtor, debt = debtors[0]
-       if debt >= credit:
-           settlements.append(f"{debtor} → {creditor} {credit:.2f}")
-           debtors[0] = (debtor, debt - credit)
-           if debt - credit == 0:
-               debtors.pop(0)
-           creditors.pop(0)
-       else:
-           settlements.append(f"{debtor} → {creditor} {debt:.2f}")
-           creditors[0] = (creditor, credit - debt)
-           if credit - debt == 0:
-               creditors.pop(0)
-           debtors.pop(0)
-    # for debtor, debt in debtors:
-    #    settlements.append(f"{debtor} owes {debt:.2f}")
-    # for creditor, credit in creditors:
-    #    settlements.append(f"{creditor} is owed {credit:.2f}")
-              
-    context['settlements'] = settlements
-    context['group'] = group
+        creditor_id, credit_amount = creditors.pop(0)
+        debtor_id, debt_amount = debtors.pop(0)
+
+        settle_amount = min(credit_amount, -debt_amount)
+
+        settlements.append(f"{members.get(id=debtor_id).name} owes {members.get(id=creditor_id).name} ${settle_amount:.2f}")
+
+        if credit_amount > settle_amount:
+            creditors.insert(0, (creditor_id, credit_amount - settle_amount))
+        if -debt_amount > settle_amount:
+            debtors.insert(0, (debtor_id, debt_amount + settle_amount))
+
+    context = {
+        'settlements': settlements
+    }
+
     return context
-#    return render(request, 'group_detail.html', context)    
+
+
+
+
+
+# def split_expenses(request, group_id):
+#     group = get_object_or_404(Group, id=group_id)
+#     transactions = Transaction.objects.filter(group=group)
+#     members = group.members.all()
+
+#     # Initialize dictionaries to track expenses and payments
+#     member_expenses = defaultdict(float)
+#     member_paid = defaultdict(float)
+
+#     # Calculate total expenses per member and total amount paid per member
+#     for transaction in transactions:
+#         split_between = transaction.group.members.all()
+#         split_amount = transaction.amount / split_between.count()
+
+#         for member in split_between:
+#             member_expenses[member.id] += split_amount
+        
+#         member_paid[transaction.payer.id] += transaction.amount
+
+#     # Calculate net balances (positive for creditors, negative for debtors)
+#     net_balances = {member.id: member_paid[member.id] - member_expenses[member.id] for member in members}
+
+#     # Lists for creditors and debtors
+#     creditors = sorted([(member.id, net_balances[member.id]) for member in members if net_balances[member.id] > 0], key=lambda x: x[1], reverse=True)
+#     debtors = sorted([(member.id, net_balances[member.id]) for member in members if net_balances[member.id] < 0], key=lambda x: x[1])
+
+#     settlements = []
+
+#     # Settling debts
+#     while creditors and debtors:
+#         creditor_id, credit_amount = creditors.pop(0)
+#         debtor_id, debt_amount = debtors.pop(0)
+
+#         settle_amount = min(credit_amount, -debt_amount)
+
+#         settlements.append(f"{members.get(id=debtor_id).name} owes {members.get(id=creditor_id).name} ${settle_amount:.2f}")
+
+#         if credit_amount > settle_amount:
+#             creditors.insert(0, (creditor_id, credit_amount - settle_amount))
+#         if -debt_amount > settle_amount:
+#             debtors.insert(0, (debtor_id, debt_amount + settle_amount))
+
+#     context = {
+#         'settlements': settlements
+#     }
+
+#     return context
+
+
+    # context = {
+    #     'group': group,
+    #     'balances': balances,
+    # }
+    # return render(request, 'expenses/group_details.html', context)
+    
+
+
+# def split_expenses(request, group_id):
+#     group = get_object_or_404(Group, id=group_id)
+#     context = {}
+#     transactions = Transaction.objects.filter(group=group)
+#     members = group.members.all()
+    
+#     balances = {}    
+#     # Initialize balances for each member
+#     for member in members:
+#         balances[member.name] = 0
+        
+#     # Calculate the total amount paid by each member
+#     for transaction in transactions:
+#        balances[transaction.payer.name] += transaction.amount
+       
+#      # Calculate the total amount owed by each member
+#     for transaction in transactions:
+#        member_count = transaction.members.count()
+#        if member_count > 0:
+#            split_amount = transaction.amount / member_count
+#            for member in transaction.members.all():
+#                if member.name == transaction.payer.name:
+#                    balances[member.name] += split_amount
+#                else:
+#                    balances[member.name] -= split_amount
+                   
+#        else:
+#            # Handle the case where there are no members
+#            print(f" Warning: Transaction {transaction.id} has no members")
+           
+#     creditors = {member: balance for member, balance in balances.items() if balance > 0}
+#     debtors = {member: -balance for member, balance in balances.items() if balance < 0}
+                
+#     debtors = sorted(debtors.items(), key=lambda x: x[1], reverse=True)
+#     creditors = sorted(creditors.items(), key=lambda x: x[1], reverse=True)
+    
+#     settlements = []
+#     while creditors and debtors:
+#        creditor, credit = creditors[0]
+#        debtor, debt = debtors[0]
+#        if debt >= credit:
+#            settlements.append(f"{debtor} → {creditor} {credit:.2f}")
+#            debtors[0] = (debtor, debt - credit)
+#            if debt - credit == 0:
+#                debtors.pop(0)
+#            creditors.pop(0)
+#        else:
+#            settlements.append(f"{debtor} → {creditor} {debt:.2f}")
+#            creditors[0] = (creditor, credit - debt)
+#            if credit - debt == 0:
+#                creditors.pop(0)
+#            debtors.pop(0)
+#     # for debtor, debt in debtors:
+#     #    settlements.append(f"{debtor} owes {debt:.2f}")
+#     # for creditor, credit in creditors:
+#     #    settlements.append(f"{creditor} is owed {credit:.2f}")
+              
+#     context['settlements'] = settlements
+#     # context['group'] = group
+#     return context
+# #    return render(request, 'group_detail.html', context)    
      
                 
             

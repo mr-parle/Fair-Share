@@ -22,17 +22,20 @@
     <a href="{% url 'add_transaction' group.id %}"><button class="btn btn-primary" type="submit">Add transaction</button></a>
     <a href="{% url 'add_member' group.id %}"><button class="btn btn-primary" type="submit">Add Member</button></a>
     {% comment %} <a href="{% url 'split_expenses' group.id %}"><button class="btn btn-primary" type="submit">Split Expenses</button></a> {% endcomment %}
-    <a href="{% url 'group_detail' group.id %}?split_expenses=true"><button class="btn btn-primary" type="submit">Split Expenses</button></a>
-    
+    <form method="post">
+        {% csrf_token %}
+        <br>
+        <button class="btn btn-primary" type="submit" name="split_expenses">Split Expenses</button>
+    </form>
 
     {% if settlements %}
-    <h2>Settlements</h2>
-    <ul>
+<h2>Settlements</h2>
+<ul>
     {% for settlement in settlements %}
         <li>{{ settlement }}</li>
     {% endfor %}
-    </ul>
-    {% endif %}
+</ul>
+{% endif %}
     
     {% endblock %}
 
