@@ -1,103 +1,76 @@
-/* 
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f2f2f2;
-    }
-
-    .container {
-      width: 80%;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .header h1 {
-      font-size: 2em;
-      color: #333;
-    }
-
-    .payment {
-      background-color: #f2f2f2;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .payment h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      color: #333;
-    }
-
-    .payment p {
-      font-size: 1.2em;
-      color: #555;
-    }
-
-    .payment .amount {
-      font-weight: bold;
-      color: #333;
-      margin-bottom: 10px;
-    }
-
-    .payment .edit {
-      float: right;
-      color: #333;
-      cursor: pointer;
-    }
-
-    .payment .edit:hover {
-      text-decoration: underline;
-    }
-
-    .liquidation {
-      background-color: #f2f2f2;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .liquidation h2 {
-      margin-top: 0;
-      font-size: 1.5em;
-      color: #333;
-    }
-
-    .liquidation .transaction {
-      font-size: 1.2em;
-      color: #555;
-      margin-bottom: 10px;
-    }
-
-    .liquidation .amount {
-      font-weight: bold;
-      color: #333;
-    }
-
-    .buttons {
-      text-align: center;
-    }
-
-    .buttons button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 12px 20px;
-      margin: 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .buttons button:hover {
-      background-color: #45a049;
-    }
-   */
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: #f7f7f7;
+}
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.header {
+  background-color: #333;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+}
+.header h2 {
+  margin: 0;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+}
+.form-group input[type="text"] {
+  width: 70%;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+.form-group input[type="text"]:focus {
+  border-color: #aaa;
+}
+.add-member-btn {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.add-member-btn:hover {
+  background-color: #3e8e41;
+}
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.member-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  background-color: lightgray;
+  border-radius: 5px;
+}
+.remove-button {
+  margin-left: 5px; /* Add some space between the text and the button */
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+.create-group-btn {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.create-group-btn:hover {
+  background-color: #3e8e41;
+}

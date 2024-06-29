@@ -1,0 +1,146 @@
+<!-- create_group.html -->
+ {% comment %} {% load static %} {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Group</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
+   <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f7f7f7;
+        }
+       .container {
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+       .header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+       .header h2 {
+            margin: 0;
+        }
+       .form-group {
+            margin-bottom: 20px;
+        }
+       .form-group label {
+            display: block;
+            margin-bottom: 10px;
+        }
+       .form-group input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+       .form-group input[type="text"]:focus {
+            border-color: #aaa;
+        }
+       .add-member-btn {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+       .add-member-btn:hover {
+            background-color: #3e8e41;
+        }
+       .member-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+       .member-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            background-color: lightgray;
+            border-radius: 5px;
+        }
+       .remove-button {
+            margin-left: 5px; /* Add some space between the text and the button */
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+       .create-group-btn {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+       .create-group-btn:hover {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Create a Group</h2>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="group_name">Group Name:</label>
+                <input type="text" id="group_name" name="group_name" required>
+            </div>
+            <div class="form-group">
+                <label for="members">Members:</label>
+                <textarea id="members" name="members" required></textarea>
+                <button class="add-member-btn" type="button" onclick="addMember()">Add</button>
+                <div class="member-list" id="member_list"></div>
+            </div>
+            <div class="form-group">
+                <button class="create-group-btn" type="submit">Create Group</button>
+            </div>
+        </form>
+
+        <script>
+            let members = []; // Array to store member data
+
+            function addMember() {
+                const memberInput = document.getElementById("members");
+                const memberName = memberInput.value.trim();
+                if (memberName!== "") {
+                    members.push({ name: memberName }); // Add member to array
+                    memberInput.value = "";
+                    renderMembers();
+                }
+            }
+
+            function removeMember(index) {
+                members.splice(index, 1); // Remove member from array
+                renderMembers();
+            }
+
+            function renderMembers() {
+                const memberList = document.getElementById("member_list");
+                memberList.innerHTML = ''; // Clear the list
+
+                members.forEach((member, index) => {
+                    const memberItem = document.createElement('div');
+                    memberItem.classList.add('member-item');
+                    memberItem.innerHTML = `
+                        <span>${member.name}</span>
+                        <button class="remove-button" onclick="removeMember(${index})">X</button>
+                    `;
+                    memberList.appendChild(memberItem);
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>

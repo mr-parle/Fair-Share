@@ -1,20 +1,53 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from.forms import GroupForm, MemberForm, TransactionForm
+from.forms import CreateGroupForm, TransactionForm
 from.models import Group, Member, Transaction, GroupMember
 from django.urls import reverse
+from collections import defaultdict
+from decimal import Decimal
 
-def create_group(request):   
+# def create_group(request):   
     
-    if request.method == 'POST':
-        form = GroupForm(request.POST)
-        if form.is_valid():
-            group = form.save()  # Get the created group instance
-            return redirect('add_member', group_id=group.id)
+#     if request.method == 'POST':
+#         form = GroupForm(request.POST)
+#         if form.is_valid():
+#             group = form.save()  # Get the created group instance
+#             return redirect('add_member', group_id=group.id)
         
+#     else:
+#         form = GroupForm()
+#     context = { 'form': form}
+#     return render(request, 'expenses/create.html', context)
+
+
+# def add_member(request, group_id):
+#     group = get_object_or_404(Group, id=group_id)
+#     if request.method == 'POST':
+#         form = MemberForm(request.POST)
+#         if form.is_valid():
+#             member = form.save()
+#             GroupMember.objects.create(group=group, member=member)
+#             return redirect(reverse('group_detail', args=[group_id]))
+#     else:
+#         form = MemberForm()
+#     context = {'form': form, 'group': group}
+#     return render(request, 'expenses/add_member.html', context)
+
+def create_group(request):
+    if request.method == 'POST':
+        form = CreateGroupForm(request.POST)
+        if form.is_valid():
+            group_name = form.cleaned_data['group_name']
+            members = form.cleaned_data['members']
+            group = Group.objects.create(grp_name=group_name)
+            for member in members:
+                member_instance, created = Member.objects.get_or_create(name=member)
+                GroupMember.objects.create(group=group, member=member_instance)
+            return redirect('group_detail', group_id=group.id)
     else:
-        form = GroupForm()
-    context = { 'form': form}
-    return render(request, 'expenses/create_group.html', context)
+        form = CreateGroupForm()
+    context = {'form': form}
+    return render(request, 'expenses/create.html', context)
+
 
 def group_detail(request, group_id):
     group = get_object_or_404(Group, id=group_id)
@@ -50,18 +83,6 @@ def dashboard(request):
     groups = Group.objects.all()
     return render(request, 'expenses/dashboard.html', {'groups': groups})
 
-def add_member(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    if request.method == 'POST':
-        form = MemberForm(request.POST)
-        if form.is_valid():
-            member = form.save()
-            GroupMember.objects.create(group=group, member=member)
-            return redirect(reverse('group_detail', args=[group_id]))
-    else:
-        form = MemberForm()
-    context = {'form': form, 'group': group}
-    return render(request, 'expenses/add_member.html', context)
 
 def add_transaction(request, group_id):
     
@@ -90,12 +111,29 @@ def transaction_list(request, group_id):
 def some_view(request, group_id):
     group = get_object_or_404(Group, id=group_id)
  
- 
+def edit_group(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
+    transactions = Transaction.objects.filter(group=group)
+    members = group.members.all()
+    # if request.user != room.host:
+    #     return HttpResponse('Your are not allowed here!!')
+
+    if request.method == 'POST':
+        topic_name = request.POST.get('topic')
+        topic, created = Topic.objects.get_or_create(name=topic_name)
+        room.name = request.POST.get('name')
+        room.topic = topic
+        room.description = request.POST.get('description')
+        room.save()
+        return redirect('home')
+
+    context = {'form': form, 'topics': topics, 'room': room}
+    return render(request, 'base/room_form.html', context)
+    
 
 # from collections import defaultdict
 
-from collections import defaultdict
-from decimal import Decimal
+
 
 def split_expenses(request, group_id):
     group = get_object_or_404(Group, id=group_id)

@@ -1,5 +1,5 @@
 {% extends 'expenses/base.html' %}
-
+{% load static %}
 {% block title %}Create Group{% endblock %}
 
 {% block content %}
@@ -18,5 +18,40 @@
         <a href="{% url 'group_detail' group.id %}">{{ group.grp_name }}</a>
       </p>
     {% endfor %}
+
+
+
+
+
+    
+  <div class="container">
+    <div class="header">
+      <h1>Party</h1>
+      <p>vinay ⚫ penta</p>
+    </div>
+    <div class="payment">
+      <h2>dfg</h2>
+      <p class="amount">Rs76</p>
+    </div>
+    <div class="payment">
+      <h2>12</h2>
+      <p class="amount">Rs453</p>
+    </div>
+    <div class="liquidation">
+      <h2>How to liquidation</h2>
+      <p class="transaction">gattu → vinay</p>
+      <p class="amount">Rs500</p>
+      <p class="transaction">shibbu → penta</p>
+      <p class="amount">Rs500</p>
+    </div>
+    <div class="buttons">
+      <button class="add-transaction-button">Add a transaction</button>
+      <button>See details</button>
+      <button>Copy URL</button>
+      <button>QR Code</button>
+      <button>Edit group</button>
+    </div>
+  </div>
+
 
 {% endblock %}

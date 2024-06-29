@@ -10,24 +10,20 @@ class Member(models.Model):
 
 class Group(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # srn = models.AutoField(unique=True)
     grp_name = models.CharField(max_length=25)
     members = models.ManyToManyField(Member, through='GroupMember', related_name='groups')
 
     def __str__(self):
         return self.grp_name
 
-    
 class GroupMember(models.Model):
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
-    # Add any additional fields here if needed
     date_joined = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self):
         return f"{self.member.name} in {self.group.grp_name}"
     
-
 class Transaction(models.Model):
     payer = models.ForeignKey(Member, on_delete=models.CASCADE, related_name='payments')
     description = models.CharField(max_length=255)
