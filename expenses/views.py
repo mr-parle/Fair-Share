@@ -39,6 +39,8 @@ def create_group(request):
             group_name = form.cleaned_data['group_name']
             members = form.cleaned_data['members']
             group = Group.objects.create(grp_name=group_name)
+            member_list = request.POST.get('member_list')
+            print("Member List:", member_list)
             for member in members:
                 member_instance, created = Member.objects.get_or_create(name=member)
                 GroupMember.objects.create(group=group, member=member_instance)
@@ -47,6 +49,24 @@ def create_group(request):
         form = CreateGroupForm()
     context = {'form': form}
     return render(request, 'expenses/create.html', context)
+
+def create_group(request):
+    if request.method == 'POST':
+        form = CreateGroupForm(request.POST)
+        if form.is_valid():
+            group_name = form.cleaned_data['group_name']
+            group = Group.objects.create(grp_name=group_name)
+            member_list = request.POST.get('member_list')
+            member_list = json.loads(member_list)  # Convert JSON string to list
+            for member in member_list:
+                member_instance, created = Member.objects.get_or_create(name=member['name'])
+                GroupMember.objects.create(group=group, member=member_instance)
+            return redirect('group_detail', group_id=group.id)
+    else:
+        form = CreateGroupForm()
+    context = {'form': form}
+    return render(request, 'expenses/create.html', context)
+
 
 
 def group_detail(request, group_id):

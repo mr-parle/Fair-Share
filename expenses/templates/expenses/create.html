@@ -99,9 +99,11 @@
             </div>
             <div class="form-group">
                 <label for="members">Members:</label>
-                <textarea id="members" name="members" required></textarea>
+                <input type="text" id="members" name="members">
                 <button class="add-member-btn" type="button" onclick="addMember()">Add</button>
+                <br><br>
                 <div class="member-list" id="member_list"></div>
+                <input type="hidden" id="member_list_input" name="member_list"> <!-- Move this field inside the form -->
             </div>
             <div class="form-group">
                 <button class="create-group-btn" type="submit">Create Group</button>
@@ -129,7 +131,7 @@
             function renderMembers() {
                 const memberList = document.getElementById("member_list");
                 memberList.innerHTML = ''; // Clear the list
-
+            
                 members.forEach((member, index) => {
                     const memberItem = document.createElement('div');
                     memberItem.classList.add('member-item');
@@ -139,6 +141,21 @@
                     `;
                     memberList.appendChild(memberItem);
                 });
+            
+                // Update the value of the hidden input field
+                const memberListInput = document.getElementById("member_list_input");
+                memberListInput.value = JSON.stringify(members);
+            }
+            
+            // Add an event listener to the form's submit event
+            document.addEventListener("DOMContentLoaded", function() {
+                const form = document.querySelector("form");
+                form.addEventListener("submit", function() {
+                    renderMembers(); // Call renderMembers when the form is submitted
+                });
+            });
+            
+               
             }
         </script>
     </div>

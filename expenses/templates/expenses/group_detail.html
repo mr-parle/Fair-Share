@@ -20,7 +20,7 @@
     </ul>
 
     <a href="{% url 'add_transaction' group.id %}"><button class="btn btn-primary" type="submit">Add transaction</button></a>
-    <a href="{% url 'add_member' group.id %}"><button class="btn btn-primary" type="submit">Add Member</button></a>
+    {% comment %} <a href="{% url 'add_member' group.id %}"><button class="btn btn-primary" type="submit">Add Member</button></a> {% endcomment %}
     {% comment %} <a href="{% url 'split_expenses' group.id %}"><button class="btn btn-primary" type="submit">Split Expenses</button></a> {% endcomment %}
     <form method="post">
         {% csrf_token %}
