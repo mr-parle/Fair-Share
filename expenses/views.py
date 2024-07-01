@@ -139,27 +139,36 @@ def go_back(request):
 def some_view(request, group_id):
     group = get_object_or_404(Group, id=group_id)
  
-def edit_group(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    transactions = Transaction.objects.filter(group=group)
-    members = group.members.all()
-    # if request.user != room.host:
-    #     return HttpResponse('Your are not allowed here!!')
+# def edit_group(request, group_id):
+#     group = get_object_or_404(Group, id=group_id)
+#     transactions = Transaction.objects.filter(group=group)
+#     members = group.members.all()
+#     # if request.user != room.host:
+#     #     return HttpResponse('Your are not allowed here!!')
 
-    if request.method == 'POST':
-        topic_name = request.POST.get('topic')
-        topic, created = Topic.objects.get_or_create(name=topic_name)
-        room.name = request.POST.get('name')
-        room.topic = topic
-        room.description = request.POST.get('description')
-        room.save()
-        return redirect('home')
+#     if request.method == 'POST':
+#         topic_name = request.POST.get('topic')
+#         topic, created = Topic.objects.get_or_create(name=topic_name)
+#         room.name = request.POST.get('name')
+#         room.topic = topic
+#         room.description = request.POST.get('description')
+#         room.save()
+#         return redirect('home')
 
-    context = {'form': form, 'topics': topics, 'room': room}
-    return render(request, 'base/room_form.html', context)
+#     context = {'form': form, 'topics': topics, 'room': room}
+#     return render(request, 'base/group_detail.html', context)
     
-
-# from collections import defaultdict
+def edit_group(request, group_id):
+    group = Group.objects.get(id=group_id)
+    members = [{'id': member.id, 'username': member.username} for member in group.members.all()]
+    return render(request, 'expenses/edit_group.html', {'group': group, 'members': members})
+    
+#     if request.method == 'POST':
+#         # Handle form submission
+#         pass
+#     return render(request, 'expenses/edit_group.html', {'group': group})    
+# def edit_group(request, group_id):
+# # from collections import defaultdict
 
 
 

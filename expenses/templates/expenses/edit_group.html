@@ -1,12 +1,12 @@
 {% extends 'expenses/base.html' %}
 {% load static %}
-{% block title %}groupppp{% endblock %}
+{% block title %}Edit Group{% endblock %}
 {% block content %}
 
 <div class="header">
     <h2>Fair Share</h2>
     <div class="sub-header">
-        <h2>Create a Group</h2>
+        <h3>Edit Group: {{ group.name }}</h3>
     </div>
 </div>
     <div class = "content">
@@ -14,24 +14,30 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="group_name">Group Name:</label>
-                <input type="text" id="group_name" name="group_name" required>
+                <input type="text" id="group_name" name="group_name" value="{{ group.name }}" required>
             </div>
             <div class="form-group">
                 <label for="members">Members:</label>
                 <input type="text" id="members" name="members">
                 <button class="add-member-btn" type="button" onclick="addMember()">Add</button>
                 <br><br>
-                <div class="member-list" id="member_list"></div>
-                <input type="hidden" id="member_list_input" name="member_list"> <!-- Move this field inside the form -->
+                <div class="member-list" id="member_list">
+                    {% for member in group.members.all %}
+                        <div class="member-item">
+                            <span>{{ member.username }}</span>
+                            <button class="remove-button" onclick="removeMember({{ forloop.counter0 }})">X</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="member_list_input" name="member_list" value='{{ group.members.all|json_script:"member_list_json" }}'>
             </div>
             <div class="form-group">
-                <button class="create-group-btn" type="submit">Create Group</button>
+                <button class="create-group-btn" type="submit">Save Changes</button>
             </div>
         </form>
     </div>
     <script>
-        
-        let members = []; // Array to store member data
+        let members = {{ group.members.all|json_script:"member_list_json" }};
         function addMember() {
             const memberInput = document.getElementById("members");
             const memberName = memberInput.value.trim();
@@ -74,4 +80,3 @@
     </script>
 
 {% endblock content %}
-

@@ -10,44 +10,39 @@
         {% for member in group.members.all %}
             {{ member.name }} •
         {% endfor %}
-
+    </div>
 </div>
-</div>
-    <div class="content">
-
-        <a href="{% url 'add_transaction' group.id %}"><button type="submit"class="add-transaction-button">Add a transaction</button></a>
-        
-         {% for transaction in transactions %}
-        <div class="payment">
-            <h2>{{ transaction.description }}</h2>
-            <p class="payer">{{ transaction.payer.name }} paid on {{transaction.date }}</p>
-            <p class="amount">Rs {{ transaction.amount }}</p>
+<div class="content">
+    <a href="{% url 'add_transaction' group.id %}"><button type="submit"class="add-transaction-button">Add a transaction</button></a>
+    
+     {% for transaction in transactions %}
+     <div class="payment">
+        <h2>{{ transaction.description }} </h2>
+        <div class="right-side">
+            <span class="amount">Rs {{ transaction.amount }}</span>
+            <a href="" class="edit-link">
+                <img  class = "edit-img" src="{% static 'images/edit-solid.svg' %}" alt="Your Image">
+            </a>
         </div>
-        <hr>
-        {% endfor %}
-
-        {% if settlements %}
-        <h3>How to liquid...</h3>
-      
-        
+        <p class="payer">{{ transaction.payer.name }} paid on {{transaction.date }}</p>
+    </div>
+    <hr>
+    {% endfor %}
+    {% if settlements %}
+    <h3>How to liquid...</h3>
         {% for settlement in settlements %}
         <div class="liq">
-
-            <p>
+            <span>
                 {{ settlement.debtor_name }} → {{ settlement.creditor_name }} 
-            </p>    
-            <p class =" set_amount">
+            </span>
+            <span class="set-amt">
                 {{ settlement.settle_amount }}
-            </p>
-                
+            </span>
         </div>
-        {% endfor %}
+    {% endfor %}
 
-        <a href="{% url 'add_transaction' group.id %}"><button type="submit"class="add-transaction-button">Edit Group</button></a>
-        
-
-
-    </div>
+    <a href="{% url 'edit_group' group.id %}"><button type="submit"class="add-transaction-button">Add a transaction</button></a>
+        </div>
     {% endif %}
     
     {% endblock %}

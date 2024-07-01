@@ -127,28 +127,61 @@ padding: 10px;
   } */
 
   .payment {
-    
-    
     padding: 5px;
     display: flex;
-    flex-direction: column; /* Add this property */
-  }
-  
-  .payment h2 {
+    flex-direction: column;
+}
+
+.payment h2 {
     margin-top: 0;
     font-size: 1.5em;
     color: #333;
-  }
-  
-  .payment .payer {
-    margin-bottom: 10px; /* Add some margin to separate from the h2 */
-  }
-  
-  .payment .amount {
+}
+
+.payment .right-side {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.payment .right-side span.amount {
     font-weight: bold;
     color: #333;
-  }
+    margin-right: 10px;
+}
 
-  .liq{
-    display: inline;
-  }
+.payment .right-side a.edit-link {
+    text-decoration: none;
+    color: #337ab7; /* Use a blue color for the edit link */
+}
+
+.payment .right-side a.edit-link:hover {
+    color: #23527c; /* Add a hover effect */
+}
+
+.payment .right-side a.edit-link i.fa-edit {
+    font-size: 1.2em; /* Make the edit icon slightly larger */
+}
+
+.payment .payer {
+    margin-bottom: 10px;
+}
+
+.liq {
+  display: flex;
+  justify-content: space-between;
+}
+
+.liq span {
+  display: inline-block;
+}
+
+.liq .set-amt {
+  text-align: right;
+}
+
+.edit-img{
+    height: 15px;
+    width: 15px;
+
+}
