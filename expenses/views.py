@@ -4,7 +4,7 @@ from.models import Group, Member, Transaction, GroupMember
 from django.urls import reverse
 from collections import defaultdict
 from decimal import Decimal
-
+import json
 # def create_group(request):   
     
 #     if request.method == 'POST':
@@ -78,10 +78,11 @@ def group_detail(request, group_id):
     settlements = []
 
 
-        
-    if request.method == 'POST' and 'split_expenses' in request.POST:
+    if transactions.exists():    
         settlements_context = split_expenses(request, group_id)
         settlements = settlements_context.get('settlements', [])
+        
+ 
 
     context = {
         'group': group,
@@ -127,6 +128,13 @@ def transaction_list(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     transactions = Transaction.objects.filter(group=group)
     return render(request, 'expenses/group_detail.html', {'transactions': transactions})
+
+def go_back(request):
+    referrer = request.META.get('HTTP_REFERER')
+    if referrer:
+        return HttpResponseRedirect(referrer)
+    else:
+        return HttpResponseRedirect(reverse('home'))
 
 def some_view(request, group_id):
     group = get_object_or_404(Group, id=group_id)
@@ -182,6 +190,8 @@ def split_expenses(request, group_id):
     debtors = sorted([(member.id, net_balances[member.id]) for member in members if net_balances[member.id] < 0], key=lambda x: x[1])
 
     settlements = []
+        # Settling debts
+    settlements = []
 
     # Settling debts
     while creditors and debtors:
@@ -190,20 +200,37 @@ def split_expenses(request, group_id):
 
         settle_amount = min(credit_amount, -debt_amount)
 
-        settlements.append(f"{members.get(id=debtor_id).name} owes {members.get(id=creditor_id).name} ${settle_amount:.2f}")
+        settlements.append({
+            'debtor_name': members.get(id=debtor_id).name,
+            'creditor_name': members.get(id=creditor_id).name,
+            'settle_amount': int(settle_amount)
+        })
 
         if credit_amount > settle_amount:
             creditors.insert(0, (creditor_id, credit_amount - settle_amount))
         if -debt_amount > settle_amount:
             debtors.insert(0, (debtor_id, debt_amount + settle_amount))
 
-    context = {
-        'settlements': settlements
-    }
-
-    return context
+    return {'settlements': settlements}
 
 
+    # # Settling debts
+    # while creditors and debtors:
+    #     creditor_id, credit_amount = creditors.pop(0)
+    #     debtor_id, debt_amount = debtors.pop(0)
+
+    #     settle_amount = min(credit_amount, -debt_amount)
+
+    #     settlements.append(f"{members.get(id=debtor_id).name} → {members.get(id=creditor_id).name} {settle_amount:.2f}")
+
+    #     if credit_amount > settle_amount:
+    #         creditors.insert(0, (creditor_id, credit_amount - settle_amount))
+    #     if -debt_amount > settle_amount:
+    #         debtors.insert(0, (debtor_id, debt_amount + settle_amount))
+
+    # context = {
+    #     'settlements': settlements
+    # }
 
 
 

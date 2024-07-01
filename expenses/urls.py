@@ -11,5 +11,6 @@ urlpatterns = [
     path('groups/<uuid:group_id>/transactions/', views.transaction_list, name='transaction_list'),
     path('split_expenses/<uuid:group_id>', views.split_expenses, name='split_expenses'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('go_back/', views.go_back, name='go_back'),
     # path('group_detail/<int:pk>/', views.group_detail, name='group_detail'),
 ]

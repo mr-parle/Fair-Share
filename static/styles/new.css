@@ -1,0 +1,154 @@
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f7f7f7;
+  }
+  .container {
+    max-width: 500px;
+    margin: 5px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  .header {
+    background-color: #e99898;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+  }
+  .sub-header {
+    background-color: #e99898;
+    color: #fff;
+    padding: 10px;
+    text-align: left;
+}
+.content {
+
+padding: 10px;
+
+}
+  .form-trn{
+    padding: 10px;
+  }
+ 
+  .header h2 {
+    margin: 0;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  .form-group input[type="text"] {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ccc;
+  }
+  .form-group input[type="text"]:focus {
+    border-color: #aaa;
+  }
+  .add-member-btn {
+    background-color: #e99898;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .add-member-btn:hover {
+    background-color: #e99898;
+  }
+  .member-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .member-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: lightgray;
+    border-radius: 5px;
+  }
+  .remove-button {
+    margin-left: 5px; /* Add some space between the text and the button */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .create-group-btn {
+    background-color: #e99898;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .create-group-btn:hover {
+    background-color: #f28989;
+  }
+
+  .add-transaction-button {
+    background-color: #e99898;
+    color: white;
+    padding: 12px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.5em;
+    width: 100%;
+  }
+  .add-transaction-button:hover {
+    background-color: #f28989;
+  }
+
+  /* .payment {
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .payment h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+  }
+  
+  .payment .amount {
+    font-weight: bold;
+    color: #333;
+  } */
+
+  .payment {
+    
+    
+    padding: 5px;
+    display: flex;
+    flex-direction: column; /* Add this property */
+  }
+  
+  .payment h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+  }
+  
+  .payment .payer {
+    margin-bottom: 10px; /* Add some margin to separate from the h2 */
+  }
+  
+  .payment .amount {
+    font-weight: bold;
+    color: #333;
+  }
+
+  .liq{
+    display: inline;
+  }

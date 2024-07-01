@@ -1,44 +1,57 @@
 {% extends 'expenses/base.html' %}
-
+{% load static %}
 {% block title %}groupppp{% endblock %}
 
 {% block content %}
-<h1>"{{ group.grp_name }}"</h1>
-
-    <h2>Members</h2>
-    <ul>
-        {% for member in members %}
-            <li>{{ member }}</li>
+<div class="header">
+    <h1>Fair Share</h1>
+    <div class="sub-header">
+        <h2>{{group.grp_name}}</h2>
+        {% for member in group.members.all %}
+            {{ member.name }} •
         {% endfor %}
-    </ul>
 
-    <h2>Transactions</h2>
-    <ul>
-        {% for transaction in transactions %}
-            <li>{{ transaction.payer.name }} paid {{ transaction.amount }} for {{ transaction.description }}</li>
+</div>
+</div>
+    <div class="content">
+
+        <a href="{% url 'add_transaction' group.id %}"><button type="submit"class="add-transaction-button">Add a transaction</button></a>
+        
+         {% for transaction in transactions %}
+        <div class="payment">
+            <h2>{{ transaction.description }}</h2>
+            <p class="payer">{{ transaction.payer.name }} paid on {{transaction.date }}</p>
+            <p class="amount">Rs {{ transaction.amount }}</p>
+        </div>
+        <hr>
         {% endfor %}
-    </ul>
 
-    <a href="{% url 'add_transaction' group.id %}"><button class="btn btn-primary" type="submit">Add transaction</button></a>
-    {% comment %} <a href="{% url 'add_member' group.id %}"><button class="btn btn-primary" type="submit">Add Member</button></a> {% endcomment %}
-    {% comment %} <a href="{% url 'split_expenses' group.id %}"><button class="btn btn-primary" type="submit">Split Expenses</button></a> {% endcomment %}
-    <form method="post">
-        {% csrf_token %}
-        <br>
-        <button class="btn btn-primary" type="submit" name="split_expenses">Split Expenses</button>
-    </form>
+        {% if settlements %}
+        <h3>How to liquid...</h3>
+      
+        
+        {% for settlement in settlements %}
+        <div class="liq">
 
-    {% if settlements %}
-<h2>Settlements</h2>
-<ul>
-    {% for settlement in settlements %}
-        <li>{{ settlement }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+            <p>
+                {{ settlement.debtor_name }} → {{ settlement.creditor_name }} 
+            </p>    
+            <p class =" set_amount">
+                {{ settlement.settle_amount }}
+            </p>
+                
+        </div>
+        {% endfor %}
+
+        <a href="{% url 'add_transaction' group.id %}"><button type="submit"class="add-transaction-button">Edit Group</button></a>
+        
+
+
+    </div>
+    {% endif %}
     
     {% endblock %}
-
+    
 
 
 

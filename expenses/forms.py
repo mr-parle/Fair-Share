@@ -25,7 +25,7 @@ class TransactionForm(forms.ModelForm):
         fields = ('payer', 'amount', 'description','group')
  
  
- 
+    
  
  
  

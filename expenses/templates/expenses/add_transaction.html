@@ -3,23 +3,39 @@
 {% block title %}Add Transaction{% endblock %}
 
 {% block content %}
-<h1>Add Transaction in {{group.grp_name}}</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <ul>
+<div class="header">
+    <h1>Fair Share</h1>
+    <div class="sub-header">
+        <h2>{{group.grp_name}}</h2>
         {% for member in group.members.all %}
+            {{ member.name }} •
+        {% endfor %}
+
+    </div>
+</div>
+<div class="form-trn">
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <ul>
+            {% for member in group.members.all %}
             <li>
                 <input type="checkbox" name="members" value="{{ member.id }}">{{ member.name }}
             </li>
-        {% endfor %}
-    </ul>
-    
-    <button type="submit" class="btn btn-primary">Add</button>
-</form>
+            {% endfor %}
+        </ul>
+        
+        <button type="submit" class="add-transaction-button">Add</button>
+        <form action="{% url 'go_back' %}" method="get">
+            <button class="add-transaction-button" onclick="window.history.back()" > Back </button>
+        </form>
+        
+    </form>
+</div>
 <br>
-<a href="{% url 'split_expenses' group.id %}"><button class="btn btn-primary" type="submit">Split Expenses</button></a>
+
 {% endblock %}
 
 

@@ -4,11 +4,12 @@
 <head>
     <title>{% block title %}Expense Splitter{% endblock %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'styles/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'styles/new.css' %}" />
 </head>
 <body>
     {% include 'expenses/navbar.html' %}
     <div class="container">
+       
         {% block content %}
         {% endblock %}
     </div>
