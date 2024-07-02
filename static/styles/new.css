@@ -105,26 +105,11 @@ padding: 10px;
   .add-transaction-button:hover {
     background-color: #f28989;
   }
-
-  /* .payment {
-    background-color: #f2f2f2;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
+  .recent-grp {
+    cursor: default;
+    text-decoration: none;
+    color: inherit;
   }
-  
-  .payment h2 {
-    margin-top: 0;
-    font-size: 1.5em;
-    color: #333;
-  }
-  
-  .payment .amount {
-    font-weight: bold;
-    color: #333;
-  } */
 
   .payment {
     padding: 5px;

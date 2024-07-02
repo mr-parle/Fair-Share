@@ -1,23 +1,27 @@
 {% extends 'expenses/base.html' %}
-
-{% block title %}
-  Dashboard
-{% endblock %}
-
+{% load static %}
+{% block title %}Edit Group{% endblock %}
 {% block content %}
-  <h1>Dashboard</h1>
 
-  <a href="{% url 'create_group' %}" class="btn btn-primary">Get Started</a>
+<div class="header">
+    <h2>Fair Share</h2>
+    <div class="sub-header">
+        <h3>Edit Group: {{ group.name }}</h3>
+    </div>
+</div>
+
+<div class = "content">
+  <a href="{% url 'create_group' %}" ><button type="submit"class="add-transaction-button">Get Started</button></a>
+</div>
+
 <br><br>
-  <h2>Select from already made Groups</h2>
+
+  <h2>Select from recent groups..</h2>
   
     {% for group in groups %}
       <p>
-        <a href="{% url 'group_detail' group.id %}">{{ group.grp_name }}</a>
+        <a href="{% url 'group_detail' group.id %}" class= "recent-grp" >{{ group.grp_name }}</a>
       </p>
     {% endfor %}
 
-
-  {% comment %} {% endif %} {% endcomment %}
-  {% comment %} {% endfor %} {% endcomment %}
 {% endblock %}

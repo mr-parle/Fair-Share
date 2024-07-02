@@ -20,7 +20,7 @@
         <h2>{{ transaction.description }} </h2>
         <div class="right-side">
             <span class="amount">Rs {{ transaction.amount }}</span>
-            <a href="" class="edit-link">
+            <a href="{% url 'edit_transaction' group_id=transaction.group.id transaction_id=transaction.id %}" class="edit-link">   
                 <img  class = "edit-img" src="{% static 'images/edit-solid.svg' %}" alt="Your Image">
             </a>
         </div>
@@ -41,7 +41,7 @@
         </div>
     {% endfor %}
 
-    <a href="{% url 'edit_group' group.id %}"><button type="submit"class="add-transaction-button">Add a transaction</button></a>
+    <a href="{% url 'edit_group' group.id %}"><button type="submit"class="add-transaction-button">Edit Group</button></a>
         </div>
     {% endif %}
     

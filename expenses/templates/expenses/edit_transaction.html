@@ -1,0 +1,41 @@
+{% extends 'expenses/base.html' %}
+
+{% block title %}Edit Transaction{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Fair Share</h1>
+    <div class="sub-header">
+        <h2>{{group.grp_name}}</h2>
+        {% for member in group.members.all %}
+            {{ member.name }} •
+        {% endfor %}
+    </div>
+</div>
+<div class="form-trn">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <ul>
+            {% for member in group.members.all %}
+            <li>
+                {% if member.id in transaction.members.all %}
+                    <input type="checkbox" name="members" value="{{ member.id }}" checked>{{ member.name }}
+                {% else %}
+                    <input type="checkbox" name="members" value="{{ member.id }}">{{ member.name }}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <button type="submit" class="add-transaction-button">Update</button>
+        <form action="{% url 'go_back' %}" method="get">
+            <button class="add-transaction-button" onclick="window.history.back()" > Back </button>
+        </form>
+        
+    </form>
+</div>
+<br>
+
+{% endblock %}
