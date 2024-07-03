@@ -10,6 +10,9 @@ urlpatterns = [
     # path('add_member/<uuid:group_id>/', views.add_member, name='add_member'),
     path('groups/<uuid:group_id>/add_transaction/', views.add_transaction, name='add_transaction'),
     path('groups/<uuid:group_id>/transactions/<int:transaction_id>/edit/', views.edit_transaction, name='edit_transaction'),
+    
+    
+    
     path('groups/<uuid:group_id>/transactions/', views.transaction_list, name='transaction_list'),
     path('split_expenses/<uuid:group_id>', views.split_expenses, name='split_expenses'),
     path('dashboard/', views.dashboard, name='dashboard'),

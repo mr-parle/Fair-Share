@@ -21,14 +21,14 @@
             {% for member in group.members.all %}
             <li>
                 {% if member.id in transaction.members.all %}
-                    <input type="checkbox" name="members" value="{{ member.id }}" checked>{{ member.name }}
+                    <input type="checkbox" name="members" checked="checked" value="{{ member.id }}" checked>{{ member.name }}
                 {% else %}
-                    <input type="checkbox" name="members" value="{{ member.id }}">{{ member.name }}
+                    <input type="checkbox" name="members" checked="checked" value="{{ member.id }}">{{ member.name }}
                 {% endif %}
             </li>
             {% endfor %}
         </ul>
-        
+        {{ group }} - {{ group.id }}
         <button type="submit" class="add-transaction-button">Update</button>
         <form action="{% url 'go_back' %}" method="get">
             <button class="add-transaction-button" onclick="window.history.back()" > Back </button>

@@ -124,17 +124,30 @@ def add_transaction(request, group_id):
         form = TransactionForm(group)  # Pass the group object here
     return render(request, 'expenses/add_transaction.html', {'form': form, 'group': group})
  
-def edit_transaction(request, transaction_id):
+# def edit_transaction(request, transaction_id):
+#     transaction = get_object_or_404(Transaction, id=transaction_id)
+#     group = transaction.group
+#     if request.method == 'POST':
+#         form = TransactionForm(request.POST, instance=transaction)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('transaction_list', group_id=group.id)
+#     else:
+#         form = TransactionForm(instance=transaction)
+#     return render(request, 'expenses/edit_transaction.html', {'form': form, 'group': group, 'transaction': transaction})
+ 
+def edit_transaction(request,group_id, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id)
     group = transaction.group
     if request.method == 'POST':
-        form = TransactionForm(request.POST, instance=transaction)
+        form = TransactionForm(group, request.POST, instance=transaction)
         if form.is_valid():
             form.save()
             return redirect('transaction_list', group_id=group.id)
     else:
-        form = TransactionForm(instance=transaction)
+        form = TransactionForm(group, instance=transaction)
     return render(request, 'expenses/edit_transaction.html', {'form': form, 'group': group, 'transaction': transaction})
+ 
  
        
 def transaction_list(request, group_id):

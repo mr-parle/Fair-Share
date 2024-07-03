@@ -1,82 +1,40 @@
 {% extends 'expenses/base.html' %}
 {% load static %}
-{% block title %}Edit Group{% endblock %}
-{% block content %}
+{% block title %}Edit Transaction{% endblock %}
 
+{% block content %}
 <div class="header">
-    <h2>Fair Share</h2>
+    <h1>Fair Share</h1>
     <div class="sub-header">
-        <h3>Edit Group: {{ group.name }}</h3>
+        <h2>{{group.grp_name}}</h2>
+        {% for member in group.members.all %}
+            {{ member.name }} •
+        {% endfor %}
+
     </div>
 </div>
-    <div class = "content">
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="group_name">Group Name:</label>
-                <input type="text" id="group_name" name="group_name" value="{{ group.name }}" required>
-            </div>
-            <div class="form-group">
-                <label for="members">Members:</label>
-                <input type="text" id="members" name="members">
-                <button class="add-member-btn" type="button" onclick="addMember()">Add</button>
-                <br><br>
-                <div class="member-list" id="member_list">
-                    {% for member in group.members.all %}
-                        <div class="member-item">
-                            <span>{{ member.username }}</span>
-                            <button class="remove-button" onclick="removeMember({{ forloop.counter0 }})">X</button>
-                        </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" id="member_list_input" name="member_list" value='{{ group.members.all|json_script:"member_list_json" }}'>
-            </div>
-            <div class="form-group">
-                <button class="create-group-btn" type="submit">Save Changes</button>
-            </div>
-        </form>
-    </div>
-    <script>
-        let members = {{ group.members.all|json_script:"member_list_json" }};
-        function addMember() {
-            const memberInput = document.getElementById("members");
-            const memberName = memberInput.value.trim();
-            if (memberName!== "") {
-                members.push({ name: memberName }); // Add member to array
-                memberInput.value = "";
-                renderMembers();
-            }
-        }
-        function removeMember(index) {
-            members.splice(index, 1); // Remove member from array
-            renderMembers();
-        }
-        function renderMembers() {
-            const memberList = document.getElementById("member_list");
-            memberList.innerHTML = ''; // Clear the list
-        
-            members.forEach((member, index) => {
-                const memberItem = document.createElement('div');
-                memberItem.classList.add('member-item');
-                memberItem.innerHTML = `
-                    <span>${member.name}</span>
-                    <button class="remove-button" onclick="removeMember(${index})">X</button>
-                `;
-                memberList.appendChild(memberItem);
-            });
-        
-            // Update the value of the hidden input field
-            const memberListInput = document.getElementById("member_list_input");
-            memberListInput.value = JSON.stringify(members);
-        }
-        
-        // Add an event listener to the form's submit event
-        document.addEventListener("DOMContentLoaded", function() {
-            const form = document.querySelector("form");
-            form.addEventListener("submit", function() {
-                renderMembers(); // Call renderMembers when the form is submitted
-            });
-        });
-    </script>
+<div class="form-trn">
 
-{% endblock content %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <ul>
+            {% for member in group.members.all %}
+            <li>
+                <input type="checkbox" name="members" value="{{ member.id }}" {% if member in transaction.members.all %}checked{% endif %}>
+                {{ member.name }}
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <button type="submit" class="add-transaction-button">Update</button>
+        <form action="{% url 'go_back' %}" method="get">
+            <button class="add-transaction-button" onclick="window.history.back()" > Back </button>
+        </form>
+        
+    </form>
+</div>
+<br>
+
+{% endblock %}

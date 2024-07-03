@@ -22,12 +22,13 @@
         <ul>
             {% for member in group.members.all %}
             <li>
-                <input type="checkbox" name="members" value="{{ member.id }}">{{ member.name }}
+                <input type="checkbox" name="members" 
+                checked="checked" value="{{ member.id }}">{{ member.name }}
             </li>
             {% endfor %}
         </ul>
-        
-        <button type="submit" class="add-transaction-button">Add</button>
+        {{ group }} - {{ group.id }}
+        <a href="{% url 'add_transaction' group.id %}" \><button type="submit" class="add-transaction-button">Add</button></a>
         <form action="{% url 'go_back' %}" method="get">
             <button class="add-transaction-button" onclick="window.history.back()" > Back </button>
         </form>
