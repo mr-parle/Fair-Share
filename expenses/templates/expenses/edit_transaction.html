@@ -28,11 +28,18 @@
             </li>
             {% endfor %}
         </ul>
-        {{ group }} - {{ group.id }}
+        
         <button type="submit" class="add-transaction-button">Update</button>
-        <form action="{% url 'go_back' %}" method="get">
-            <button class="add-transaction-button" onclick="window.history.back()" > Back </button>
         </form>
+       
+
+        <form action="{% url 'delete_transaction' group.id transaction.id %}" method="get">
+            <button type="submit" class="add-transaction-button">Delete</button>
+        </form>
+        <form action="{% url 'go_back' %}" method="get">
+            <button class="add-transaction-button" onclick="window.history.back()">Back</button>
+        </form>
+        
         
     </form>
 </div>

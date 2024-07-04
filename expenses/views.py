@@ -5,50 +5,11 @@ from django.urls import reverse
 from collections import defaultdict
 from decimal import Decimal
 import json
-# def create_group(request):   
-    
-#     if request.method == 'POST':
-#         form = GroupForm(request.POST)
-#         if form.is_valid():
-#             group = form.save()  # Get the created group instance
-#             return redirect('add_member', group_id=group.id)
-        
-#     else:
-#         form = GroupForm()
-#     context = { 'form': form}
-#     return render(request, 'expenses/create.html', context)
 
+def dashboard(request):
+    groups = Group.objects.all()
+    return render(request, 'expenses/dashboard.html', {'groups': groups})
 
-# def add_member(request, group_id):
-#     group = get_object_or_404(Group, id=group_id)
-#     if request.method == 'POST':
-#         form = MemberForm(request.POST)
-#         if form.is_valid():
-#             member = form.save()
-#             GroupMember.objects.create(group=group, member=member)
-#             return redirect(reverse('group_detail', args=[group_id]))
-#     else:
-#         form = MemberForm()
-#     context = {'form': form, 'group': group}
-#     return render(request, 'expenses/add_member.html', context)
-
-def create_group(request):
-    if request.method == 'POST':
-        form = CreateGroupForm(request.POST)
-        if form.is_valid():
-            group_name = form.cleaned_data['group_name']
-            members = form.cleaned_data['members']
-            group = Group.objects.create(grp_name=group_name)
-            member_list = request.POST.get('member_list')
-            print("Member List:", member_list)
-            for member in members:
-                member_instance, created = Member.objects.get_or_create(name=member)
-                GroupMember.objects.create(group=group, member=member_instance)
-            return redirect('group_detail', group_id=group.id)
-    else:
-        form = CreateGroupForm()
-    context = {'form': form}
-    return render(request, 'expenses/create.html', context)
 
 def create_group(request):
     if request.method == 'POST':
@@ -61,11 +22,17 @@ def create_group(request):
             for member in member_list:
                 member_instance, created = Member.objects.get_or_create(name=member['name'])
                 GroupMember.objects.create(group=group, member=member_instance)
-            return redirect('group_detail', group_id=group.id)
+            return redirect('group_detail', group_id=group_id)
     else:
         form = CreateGroupForm()
     context = {'form': form}
     return render(request, 'expenses/create.html', context)
+
+
+def edit_group(request, group_id):
+    group = Group.objects.get(id=group_id)
+    members = [{'id': member.id, 'username': member.username} for member in group.members.all()]
+    return render(request, 'expenses/edit_group.html', {'group': group, 'members': members})
 
 
 
@@ -76,37 +43,22 @@ def group_detail(request, group_id):
     transactions = Transaction.objects.filter(group=group)
     
     settlements = []
-
-
     if transactions.exists():    
         settlements_context = split_expenses(request, group_id)
         settlements = settlements_context.get('settlements', [])
         
- 
-
     context = {
         'group': group,
         'members': members,
         'transactions': transactions,
         'settlements': settlements
-    }
-    
-    
+    } 
+
     return render(request, 'expenses/group_detail.html', context)
 
-def dashboard(request):
-    groups = Group.objects.all()
-    valid_groups = [group for group in groups if group.pk is not None]
-    logger.info("Groups retrieved: %s", valid_groups)
-    return render(request, 'expenses/dashboard.html', {'groups': valid_groups})
-
-def dashboard(request):
-    groups = Group.objects.all()
-    return render(request, 'expenses/dashboard.html', {'groups': groups})
 
 
-def add_transaction(request, group_id):
-    
+def add_transaction(request, group_id):    
     group = get_object_or_404(Group, id=group_id)
     # print(group.members.all())  # Check if this prints any members
     if request.method == 'POST':
@@ -123,19 +75,7 @@ def add_transaction(request, group_id):
     else:
         form = TransactionForm(group)  # Pass the group object here
     return render(request, 'expenses/add_transaction.html', {'form': form, 'group': group})
- 
-# def edit_transaction(request, transaction_id):
-#     transaction = get_object_or_404(Transaction, id=transaction_id)
-#     group = transaction.group
-#     if request.method == 'POST':
-#         form = TransactionForm(request.POST, instance=transaction)
-#         if form.is_valid():
-#             form.save()
-#             return redirect('transaction_list', group_id=group.id)
-#     else:
-#         form = TransactionForm(instance=transaction)
-#     return render(request, 'expenses/edit_transaction.html', {'form': form, 'group': group, 'transaction': transaction})
- 
+
 def edit_transaction(request,group_id, transaction_id):
     transaction = get_object_or_404(Transaction, id=transaction_id)
     group = transaction.group
@@ -143,17 +83,20 @@ def edit_transaction(request,group_id, transaction_id):
         form = TransactionForm(group, request.POST, instance=transaction)
         if form.is_valid():
             form.save()
-            return redirect('transaction_list', group_id=group.id)
+            # return redirect('expenses/group_detail.html', group_id=group.id)
+            return redirect('group_detail', group_id=group_id)
     else:
         form = TransactionForm(group, instance=transaction)
     return render(request, 'expenses/edit_transaction.html', {'form': form, 'group': group, 'transaction': transaction})
+    
+def delete_transaction(request, group_id, transaction_id):
+    transaction = get_object_or_404(Transaction, id=transaction_id)
+    group = transaction.group
+    if request.method == 'POST':
+        transaction.delete()
+        return redirect('group_detail', group_id=group_id)
+    return render(request, 'expenses/delete_transaction.html', {'transaction': transaction, 'group': group})
  
- 
-       
-def transaction_list(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
-    transactions = Transaction.objects.filter(group=group)
-    return render(request, 'expenses/group_detail.html', {'transactions': transactions})
 
 def go_back(request):
     referrer = request.META.get('HTTP_REFERER')
@@ -162,42 +105,7 @@ def go_back(request):
     else:
         return HttpResponseRedirect(reverse('home'))
 
-def some_view(request, group_id):
-    group = get_object_or_404(Group, id=group_id)
- 
-# def edit_group(request, group_id):
-#     group = get_object_or_404(Group, id=group_id)
-#     transactions = Transaction.objects.filter(group=group)
-#     members = group.members.all()
-#     # if request.user != room.host:
-#     #     return HttpResponse('Your are not allowed here!!')
-
-#     if request.method == 'POST':
-#         topic_name = request.POST.get('topic')
-#         topic, created = Topic.objects.get_or_create(name=topic_name)
-#         room.name = request.POST.get('name')
-#         room.topic = topic
-#         room.description = request.POST.get('description')
-#         room.save()
-#         return redirect('home')
-
-#     context = {'form': form, 'topics': topics, 'room': room}
-#     return render(request, 'base/group_detail.html', context)
     
-def edit_group(request, group_id):
-    group = Group.objects.get(id=group_id)
-    members = [{'id': member.id, 'username': member.username} for member in group.members.all()]
-    return render(request, 'expenses/edit_group.html', {'group': group, 'members': members})
-    
-#     if request.method == 'POST':
-#         # Handle form submission
-#         pass
-#     return render(request, 'expenses/edit_group.html', {'group': group})    
-# def edit_group(request, group_id):
-# # from collections import defaultdict
-
-
-
 def split_expenses(request, group_id):
     group = get_object_or_404(Group, id=group_id)
     transactions = Transaction.objects.filter(group=group)
