@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from.forms import CreateGroupForm, TransactionForm
+from django.http import HttpResponseRedirect
 from.models import Group, Member, Transaction, GroupMember
 from django.urls import reverse
 from collections import defaultdict
@@ -103,7 +104,7 @@ def go_back(request):
     if referrer:
         return HttpResponseRedirect(referrer)
     else:
-        return HttpResponseRedirect(reverse('home'))
+        return HttpResponseRedirect(reverse('group_detail'))
 
     
 def split_expenses(request, group_id):
